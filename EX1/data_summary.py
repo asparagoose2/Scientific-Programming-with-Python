@@ -5,6 +5,8 @@ import json
 
 class DataSummary:
 
+    accepted_delimiters = ['.', ':', '|', '-', ';', '#', '*', ',']
+
     def __init__(self, datafile, metafile):
         self.data = []
         if not metafile or not datafile:
@@ -103,6 +105,15 @@ class DataSummary:
             raise KeyError("Feature not found")
         return len([x for x in self.features[feature]['__values'] if x is None])
 
+    def to_csv(self,filename,delimiter=','):
+        if delimiter not in self.accepted_delimiters:
+            delimiter = ','        
+        with open(filename, 'w') as f:
+            writer = csv.writer(f, delimiter=delimiter)
+            writer.writerow(self.features.keys())
+            for record in self.data:
+                writer.writerow([record[x] for x in self.features.keys()])
+
 
 
 test = DataSummary('happiness.json', 'happiness_meta.csv')
@@ -110,4 +121,5 @@ test = DataSummary('happiness.json', 'happiness_meta.csv')
 # print(test[-2])
 # print(test['Happiness Rank'])
 print(test.empty('Country'))
+test.to_csv('happiness_summary.csv', '%')
 
