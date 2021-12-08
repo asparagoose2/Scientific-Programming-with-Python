@@ -91,15 +91,15 @@ class DataSummary:
         to_return = list(set(self.values_without_nulls(feature)))
         to_return.sort()
         return to_return
-    
-    # return a list of the values which appear the most in the feature (None values are not counted). HOW?
+
     def mode(self,feature):
+        def mode_helper(values):
+            return temp[values]
         if feature not in self.features.keys():
             raise KeyError("Feature not found")
-        if self.features[feature]['type'] == 'string':
-            raise TypeError("TypeError: Type must be numeric")
+        temp = {value:self.values_without_nulls(feature).count(value) for value in self.unique(feature)}
+        return [v for v in temp.keys() if temp[v] == max(temp.values())]
 
-    # return the number of None values in the feature.
     def empty(self,feature):
         if feature not in self.features.keys():
             raise KeyError("Feature not found")
@@ -113,13 +113,4 @@ class DataSummary:
             writer.writerow(self.features.keys())
             for record in self.data:
                 writer.writerow([record[x] for x in self.features.keys()])
-
-
-
-test = DataSummary('happiness.json', 'happiness_meta.csv')
-
-# print(test[-2])
-# print(test['Happiness Rank'])
-print(test.empty('Country'))
-test.to_csv('happiness_summary.csv', '%')
 
